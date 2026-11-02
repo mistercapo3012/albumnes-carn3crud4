@@ -75,7 +75,7 @@ body {
 */
 .timeline {
     --line-w: min(90vw, 6912px);   /* longitud en orientación horizontal */
-    --line-h: 55vh;                /* longitud en orientación vertical */
+    --line-h: 58vh;                /* longitud en orientación vertical */
     --line-gap: calc(2px + 0.5rem); /* separación texto-línea (medio grosor + aire) */
     --dx: var(--line-w);           /* proyección horizontal de la línea */
     --dy: 0px;                     /* proyección vertical de la línea */
@@ -224,6 +224,10 @@ body {
     height: 0;
     z-index: 1;
     transition: left 0.25s ease, top 0.25s ease;
+}
+
+.timeline__item:has(.timeline__card[open]) {
+    z-index: 2;
 }
 
 /* Marcador perpendicular a la línea (6px × 18px), rota con el mismo ángulo */
@@ -384,7 +388,7 @@ body {
     }
 
     .timeline {
-        min-height: max(55vh, var(--track-h));
+        min-height: max(var(--line-h), var(--track-h));
         flex-wrap: wrap;
         gap: 1.5rem;
     }
