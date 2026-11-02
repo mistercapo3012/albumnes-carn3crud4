@@ -1,0 +1,406 @@
+/* ==========================================================================
+   Configuración base y reinicio minimalista (Monocromático: #FFFFFF / #000000)
+   ========================================================================== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #FFFFFF;
+    color: #000000;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==========================================================================
+   Encabezado principal
+   ========================================================================== */
+.site-header {
+    width: 100%;
+    padding: 3.5rem 1.5rem 2rem;
+    text-align: center;
+}
+
+.site-title {
+    color: #000000;
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+/* ==========================================================================
+   Contenedor principal y eje de la línea temporal horizontal
+   ========================================================================== */
+.main-container {
+    flex: 1;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 3rem 4rem;
+    display: flex;
+    align-items: center;
+}
+
+.timeline {
+    position: relative;
+    width: 100%;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 2rem;
+}
+
+/*
+   Geometría responsive de la línea:
+   - Ancho horizontal: 90 % del viewport, hasta 6912px (90 % de 7680px, referencia 8K / 98").
+   - Rotación progresiva: 0deg con viewport >= 1366px y 90deg con viewport <= 440px.
+     --t1 avanza de 0 a 926px (1366 - 440) al reducir el viewport y atan2() lo convierte
+     en un ángulo continuo, sin JavaScript ni saltos entre breakpoints.
+*/
+.timeline {
+    --line-w: min(90vw, 6912px);   /* longitud en orientación horizontal */
+    --line-h: 55vh;                /* longitud en orientación vertical */
+    --line-gap: calc(2px + 0.5rem); /* separación texto-línea (medio grosor + aire) */
+    --dx: var(--line-w);           /* proyección horizontal de la línea */
+    --dy: 0px;                     /* proyección vertical de la línea */
+    --sp: 0;                       /* seno del ángulo real de la línea (0 = horizontal) */
+    --cp: 1;                       /* coseno del ángulo real de la línea (0 = vertical) */
+    --sp2: calc(var(--sp) * var(--sp));
+    --sp4: calc(var(--sp2) * var(--sp2));
+    /* Portadas: tamaño horizontal / vertical mezclado según la rotación (sin saltos) */
+    --cover-h: clamp(4rem, min(9vw + 1rem, 22vh), 18rem);
+    --cover-v: clamp(4rem, min(28vw, 11vh), 9rem);
+    --cover: calc(var(--cover-h) * (1 - var(--sp)) + var(--cover-v) * var(--sp));
+    --cover-gap: 14px;             /* medio marcador (9px) + aire */
+    /* Fila de fechas debajo de la fila de ENERO!1 / DICIEMBR31 */
+    --date-gap: calc(var(--line-gap) + 1.05rem + 0.375rem);
+    /* Centro horizontal: en vertical se desplaza a la izquierda para centrar línea + portadas */
+    --cx: calc(50% - (var(--cover) + var(--cover-gap)) / 2 * var(--sp2));
+    --track-h: calc(var(--dy) + 2 * var(--cover) * var(--cp) + 5rem);
+    min-height: max(60vh, var(--track-h));
+}
+
+/* Línea negra (~4px) centrada en el área principal */
+.timeline::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: var(--cx);
+    width: var(--line-w);
+    height: 4px;
+    background-color: #000000;
+    transform: translate(-50%, -50%);
+}
+
+/* ==========================================================================
+   Textos de los extremos de la línea temporal (ENERO!1 / DICIEMBR31)
+   ========================================================================== */
+.timeline__endpoint {
+    position: absolute;
+    top: calc(50% + var(--line-gap));
+    color: #000000;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.timeline__endpoint--start {
+    left: calc(var(--cx) - var(--dx) / 2);
+    text-align: left;
+}
+
+.timeline__endpoint--end {
+    left: calc(var(--cx) + var(--dx) / 2);
+    text-align: right;
+    transform: translateX(-100%);
+}
+
+/* Rotación progresiva continua (navegadores con funciones trigonométricas CSS) */
+@supports (transform: rotate(atan2(1px, 1px))) and (width: hypot(1px, 1px)) {
+    .timeline {
+        --t1: clamp(0px, 1366px - 100vw, 926px);
+        --theta: atan2(var(--t1), calc(926px - var(--t1)));
+        --c: cos(var(--theta));
+        --s: sin(var(--theta));
+        --c2: calc(var(--c) * var(--c));
+        --c8: calc(var(--c2) * var(--c2) * var(--c2) * var(--c2)); /* decae rápido: alineación lateral sólo cerca de 0deg */
+        --dx: calc(var(--line-w) * var(--c));
+        --dy: calc(var(--line-h) * var(--s));
+        /* Ángulo para rodear el extremo inicial: abajo (0deg) → izquierda → arriba (90deg) */
+        --orbit: calc(90deg + 2 * var(--theta));
+        /* Ángulo real de la línea, reutilizado por marcadores, portadas y fechas */
+        --phi: atan2(var(--dy), var(--dx));
+        --sp: sin(var(--phi));
+        --cp: cos(var(--phi));
+    }
+
+    .timeline::before {
+        width: hypot(var(--dx), var(--dy));
+        transform: translate(-50%, -50%) rotate(atan2(var(--dy), var(--dx)));
+    }
+
+    .timeline__endpoint--start {
+        top: calc(50% - var(--dy) / 2);
+        transform: translate(
+            calc(-50% + 50% * var(--c8) + (50% + var(--line-gap)) * clamp(-1, 3 * cos(var(--orbit)), 1)),
+            calc(-50% + (50% + var(--line-gap)) * clamp(-1, 3 * sin(var(--orbit)), 1))
+        );
+    }
+
+    .timeline__endpoint--end {
+        top: calc(50% + var(--dy) / 2 + var(--line-gap));
+        transform: translateX(calc(-50% - 50% * var(--c8)));
+    }
+
+    .timeline::before,
+    .timeline__endpoint {
+        transition: width 0.25s ease, transform 0.25s ease, left 0.25s ease, top 0.25s ease;
+    }
+}
+
+/* Respaldo sin trigonometría CSS: vertical en teléfonos */
+@supports not ((transform: rotate(atan2(1px, 1px))) and (width: hypot(1px, 1px))) {
+    @media (max-width: 440px) {
+        .timeline {
+            --dx: 0px;
+            --dy: var(--line-h);
+            --sp: 1;
+            --cp: 0;
+        }
+
+        .timeline::before {
+            width: var(--line-h);
+            transform: translate(-50%, -50%) rotate(90deg);
+        }
+
+        .timeline__endpoint--start {
+            top: calc(50% - var(--dy) / 2 - var(--line-gap));
+            transform: translate(-50%, -100%);
+        }
+
+        .timeline__endpoint--end {
+            top: calc(50% + var(--dy) / 2 + var(--line-gap));
+            transform: translateX(-50%);
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .timeline::before,
+    .timeline__endpoint {
+        transition: none !important;
+    }
+}
+
+/* ==========================================================================
+   Álbumes de la línea temporal
+   Cada .timeline__item define --pos (fracción del año: día / 364) y se ubica
+   sobre la línea reutilizando --cx, --dx, --dy, --sp y --cp del sistema de rotación.
+   ========================================================================== */
+.timeline__item {
+    --pos: 0;
+    position: absolute;
+    left: calc(var(--cx) + (var(--pos) - 0.5) * var(--dx));
+    top: calc(50% + (var(--pos) - 0.5) * var(--dy));
+    width: 0;
+    height: 0;
+    z-index: 1;
+    transition: left 0.25s ease, top 0.25s ease;
+}
+
+/* Marcador perpendicular a la línea (6px × 18px), rota con el mismo ángulo */
+.timeline__connector {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 6px;
+    height: 18px;
+    background-color: #000000;
+    transform: translate(-50%, -50%) matrix(var(--cp), var(--sp), calc(-1 * var(--sp)), var(--cp), 0, 0);
+}
+
+/*
+   Portada: siempre del lado "superior" de la línea original (normal n = (sen, -cos)).
+   Horizontal → arriba, centrada en el marcador. Vertical → a la derecha, colgando
+   desde el marcador (desplazamiento paralelo a la línea, que nunca la atraviesa).
+*/
+.timeline__card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--cover);
+    transform: translate(
+        calc(-50% + (50% + var(--cover-gap)) * clamp(-1, 3 * var(--sp), 1) + (50% - 9px) * var(--cp) * var(--sp4)),
+        calc(-50% + (50% + var(--cover-gap)) * clamp(-1, -3 * var(--cp), 1) + (50% - 9px) * var(--sp) * var(--sp4))
+    );
+}
+
+.timeline__figure {
+    position: relative;
+    display: block;
+    width: var(--cover);
+    height: var(--cover);
+    aspect-ratio: 1 / 1;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 5px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.timeline__figure::-webkit-details-marker {
+    display: none;
+}
+
+.timeline__figure::marker {
+    content: "";
+}
+
+.timeline__figure:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+.timeline__cover {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+}
+
+/* Viñeta radial: centro intacto, bordes oscurecidos para el texto blanco */
+.timeline__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8%;
+    background: radial-gradient(circle at 50% 50%,
+        rgb(0 0 0 / 0) 0%,
+        rgb(0 0 0 / 0.05) 32%,
+        rgb(0 0 0 / 0.45) 60%,
+        rgb(0 0 0 / 0.85) 100%);
+    color: #FFFFFF;
+    font-size: clamp(0.55rem, calc(var(--cover) * 0.085), 1.15rem);
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: center;
+    overflow-wrap: anywhere;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease-out;
+}
+
+.timeline__album,
+.timeline__artist {
+    max-width: 100%;
+    transition: transform 0.18s ease-out;
+}
+
+.timeline__album {
+    transform: translateY(-4px);
+}
+
+.timeline__artist {
+    transform: translateY(4px);
+}
+
+.timeline__card[open] .timeline__overlay {
+    opacity: 1;
+}
+
+.timeline__card[open] .timeline__album,
+.timeline__card[open] .timeline__artist {
+    transform: none;
+}
+
+/* Fecha: debajo de la línea (fila inferior a ENERO!1), del lado opuesto a la portada */
+.timeline__date {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #000000;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    white-space: nowrap;
+    transform: translate(
+        calc(-50% + (50% + var(--cover-gap)) * clamp(-1, -3 * var(--sp), 1)),
+        calc(-50% + (50% + var(--date-gap)) * clamp(-1, 3 * var(--cp), 1))
+    );
+}
+
+.timeline__connector,
+.timeline__card,
+.timeline__date {
+    transition: transform 0.25s ease, width 0.25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .timeline__item,
+    .timeline__connector,
+    .timeline__card,
+    .timeline__date,
+    .timeline__overlay,
+    .timeline__album,
+    .timeline__artist {
+        transition: none !important;
+    }
+}
+
+/* ==========================================================================
+   Diseño adaptable (Dispositivos móviles y pantallas pequeñas)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .site-header {
+        padding: 2.5rem 1rem 1.5rem;
+    }
+
+    .main-container {
+        padding: 1rem 1.25rem 3rem;
+    }
+
+    .timeline {
+        min-height: max(55vh, var(--track-h));
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .timeline__endpoint {
+        font-size: 0.75rem;
+    }
+
+    .timeline__date {
+        font-size: 0.75rem;
+    }
+}
+
+/* Línea vertical (teléfonos): la fecha pasa debajo de su portada, a la derecha de la línea */
+@media (max-width: 440px) {
+    .timeline__date {
+        transform: translate(var(--cover-gap), calc(var(--cover) - 9px + 0.375rem));
+    }
+}

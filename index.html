@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Albumnes carn3crud4 2026</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Encabezado principal -->
+    <header class="site-header">
+        <h1 class="site-title">Albumnes carn3crud4 2026</h1>
+    </header>
+
+    <!-- Contenedor principal de la línea temporal horizontal -->
+    <main class="main-container">
+        <section class="timeline" aria-label="Línea temporal de álbumes 2026">
+            <!-- Textos en los extremos de la línea temporal -->
+            <span class="timeline__endpoint timeline__endpoint--start">ENERO!1</span>
+            <span class="timeline__endpoint timeline__endpoint--end">DICIEMBR31</span>
+
+            <!--
+                ÁLBUMES (orden cronológico). Para agregar uno nuevo, copiar un bloque y cambiar:
+                - --pos: posición en el año = (día del año - 1) / 364  (01/01 = 0, 31/12 = 1)
+                - src de la portada (carpeta img/, formato WebP 1:1), alt, nombre, artista y fecha.
+            -->
+            <!-- 06/01/2026 → día 6 → (6 - 1) / 364 = 0.013736 (≈ 1,4 %) -->
+            <article class="timeline__item" style="--pos: 0.013736;">
+                <span class="timeline__connector" aria-hidden="true"></span>
+                <details class="timeline__card">
+                    <summary class="timeline__figure">
+                        <img class="timeline__cover" src="img/el-show-debe-continuar-salas-flaco.webp" width="3000" height="3000" alt="Portada de El Show Debe Continuar, de salas flaco">
+                        <span class="timeline__overlay" aria-hidden="true">
+                            <span class="timeline__album">El Show Debe Continuar</span>
+                            <span class="timeline__artist">-salas flaco</span>
+                        </span>
+                    </summary>
+                </details>
+                <time class="timeline__date" datetime="2026-01-06">06/01</time>
+            </article>
+
+            <!-- 11/10/2026 → día 284 → (284 - 1) / 364 = 0.777473 (≈ 77,7 %) -->
+            <article class="timeline__item" style="--pos: 0.777473;">
+                <span class="timeline__connector" aria-hidden="true"></span>
+                <details class="timeline__card">
+                    <summary class="timeline__figure">
+                        <img class="timeline__cover" src="img/murder-afkgoat.webp" width="3000" height="3000" alt="Portada de murder, de afkGOAT">
+                        <span class="timeline__overlay" aria-hidden="true">
+                            <span class="timeline__album">murder</span>
+                            <span class="timeline__artist">-afkGOAT</span>
+                        </span>
+                    </summary>
+                </details>
+                <time class="timeline__date" datetime="2026-10-11">11/10</time>
+            </article>
+        </section>
+    </main>
+</body>
+</html>
