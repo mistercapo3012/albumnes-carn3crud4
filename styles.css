@@ -230,6 +230,11 @@ body {
     z-index: 2;
 }
 
+.timeline__item:focus-within,
+.timeline__item:hover {
+    z-index: 3;
+}
+
 /* Marcador perpendicular a la línea (6px × 18px), rota con el mismo ángulo */
 .timeline__connector {
     position: absolute;
@@ -293,24 +298,25 @@ body {
 
 /* Viñeta radial: centro intacto, bordes oscurecidos para el texto blanco */
 .timeline__overlay {
+    --overlay-fs: clamp(0.41rem, calc(var(--cover) * 0.075), 1.05rem);
     position: absolute;
     inset: 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    padding: 8%;
+    padding: 7% 6%;
     background: radial-gradient(circle at 50% 50%,
         rgb(0 0 0 / 0) 0%,
         rgb(0 0 0 / 0.05) 32%,
         rgb(0 0 0 / 0.45) 60%,
         rgb(0 0 0 / 0.85) 100%);
     color: #FFFFFF;
-    font-size: clamp(0.55rem, calc(var(--cover) * 0.085), 1.15rem);
+    font-size: var(--overlay-fs);
     font-weight: 700;
     line-height: 1.15;
     text-align: center;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     text-shadow: 0 1px 3px rgb(0 0 0 / 0.6);
     opacity: 0;
     pointer-events: none;
@@ -320,7 +326,8 @@ body {
 .timeline__album,
 .timeline__artist {
     max-width: 100%;
-    transition: transform 0.18s ease-out;
+    font-size: var(--overlay-fs);
+    transition: transform 0.18s ease-out, font-size 0.18s ease-out;
 }
 
 .timeline__album {
@@ -335,8 +342,10 @@ body {
     opacity: 1;
 }
 
+/* Al activar la portada (clic o toque), los textos crecen un 18 % (rango 15-20 %) */
 .timeline__card[open] .timeline__album,
 .timeline__card[open] .timeline__artist {
+    font-size: calc(var(--overlay-fs) * 1.18);
     transform: none;
 }
 
